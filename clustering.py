@@ -63,7 +63,7 @@ for n_clusters in range_n_clusters:
 	ax1.set_title("The silhouette plot for the various clusters.")
 	ax1.set_xlabel("The silhouette coefficient values")
 	ax1.set_ylabel("Cluster label")
-	ax1.set_xlim([-1,1])
+	ax1.set_xlim([-0.5,1])
 	ax1.set_ylim([0, len(data) + (n_clusters + 1) * 10])			# The (n_clusters+1)*10 is for inserting blank space between silhouette plots of individual clusters, to demarcate them clearly.
 
 	# 2nd Plot showing the actual clusters formed
