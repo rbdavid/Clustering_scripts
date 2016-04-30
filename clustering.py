@@ -35,7 +35,7 @@ for i in range(important_eigenvectors):
 
 for n_clusters in range_n_clusters:
 	# Initialize the clusterer with desired kwargs
-	clusterer = KMeans(n_clusters=n_clusters,init='k-means++',n_init=10,max_iter=300,tol=0.0001,precompute_distances='auto',verbose=0,random_state=10,n_jobs=1)
+	clusterer = KMeans(n_clusters=n_clusters,init='k-means++',n_init=10,max_iter=300,tol=0.0001,precompute_distances='auto',verbose=0,n_jobs=1)
 	cluster_labels = clusterer.fit_predict(data)
 	silhouette_avg = silhouette_score(data, cluster_labels)			# The silhouette_score gives the average value for all the samples. This gives a perspective into the density and separation of the formed clusters
 	print 'For n_clusters =', n_clusters,'The average silhouette_score is :', silhouette_avg
