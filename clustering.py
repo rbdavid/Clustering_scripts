@@ -38,7 +38,7 @@ for n_clusters in range_n_clusters:
 	clusterer = KMeans(n_clusters=n_clusters,init='k-means++',n_init=10,max_iter=300,tol=0.0001,precompute_distances='auto',verbose=0,random_state=10,n_jobs=1)
 	cluster_labels = clusterer.fit_predict(data)
 	silhouette_avg = silhouette_score(data, cluster_labels)			# The silhouette_score gives the average value for all the samples. This gives a perspective into the density and separation of the formed clusters
-	print("For n_clusters =", n_clusters,"The average silhouette_score is :", silhouette_avg)
+	print 'For n_clusters =', n_clusters,'The average silhouette_score is :', silhouette_avg
 	sample_silhouette_values = silhouette_samples(data, cluster_labels)	# Compute the silhouette scores for each sample
 	
 	# Initialize the figure to be made...
