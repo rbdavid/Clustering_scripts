@@ -81,4 +81,5 @@ for n_clusters in range_n_clusters:
 	
 	plt.suptitle("Silhouette analysis for KMeans clustering on sample data with n_clusters = %d" %(n_clusters),fontsize=14, fontweight='bold')
 	plt.savefig('clustering_%s.png' %(n_clusters))
+	plt.close()
 
