@@ -13,9 +13,13 @@ import sys
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples, silhouette_score
 
+zeros = np.zeros
+
 range_n_clusters = [2,3,4,5,6,7,8,9,10]
-important_eigenvectors = int(sys.argv[1])
-frames = int(sys.argv[2])
+
+datafile0 = sys.argv[1]
+datafile1 = sys.argv[2]
+datafile2 = sys.argv[3]
 
 # ----------------------------------------
 # SUBROUTINES:
@@ -27,20 +31,33 @@ def ffprint(string):
 # ----------------------------------------
 # MAIN PROGRAM:
 
-data = np.zeros((frames,important_eigenvectors),dtype=np.float64)
+data0 = np.loadtxt(datafile0)
+data1 = np.loadtxt(datafile1)
+data2 = np.loadtxt(datafile2)
 
-for i in range(important_eigenvectors):
-	temp_data = np.loadtxt('%02d.projection.dat' %(i))
-	data[:,i] = temp_data
+nSteps = int(data0[-1][1]+1)
+sq_matrix = zeros((nSteps,nSteps),dtype=np.float64)
 
+for j in range(len(data0)):
+	sq_matrix[int(data0[j][0]),int(data0[j][1])] = float(data0[j][2])
+	sq_matrix[int(data0[j][1]),int(data0[j][0])] = float(data0[j][2])
+
+centered_matrix = sq_matrix - np.mean(sq_matrix,axis=0)
+
+out = open('sil_clusters.dat','w')
 for n_clusters in range_n_clusters:
 	# Initialize the clusterer with desired kwargs
-	clusterer = KMeans(n_clusters=n_clusters,init='k-means++',n_init=10,max_iter=300,tol=0.0001,precompute_distances='auto',verbose=0,n_jobs=1)
-	cluster_labels = clusterer.fit_predict(data)
-	silhouette_avg = silhouette_score(data, cluster_labels)			# The silhouette_score gives the average value for all the samples. This gives a perspective into the density and separation of the formed clusters
-	print 'For n_clusters =', n_clusters,'The average silhouette_score is :', silhouette_avg
-	sample_silhouette_values = silhouette_samples(data, cluster_labels)	# Compute the silhouette scores for each sample
-	
+	clusterer = KMeans(n_clusters=n_clusters,init='k-means++',n_init=100,max_iter=1000,tol=0.0000001,precompute_distances='auto',verbose=0,n_jobs=1)
+	cluster_labels = clusterer.fit_predict(centered_matrix)
+	silhouette_avg = silhouette_score(centered_matrix, cluster_labels)			# The silhouette_score gives the average value for all the samples. This gives a perspective into the density and separation of the formed clusters
+	out.write('For n_clusters = %3d, The average silhouette_score is: %f\n' %(n_clusters,silhouette_avg))
+	sample_silhouette_values = silhouette_samples(centered_matrix, cluster_labels)	# Compute the silhouette scores for each sample
+
+	out1 = open('%02d.Cluster_labels.dat' %(n_clusters),'w')
+	for i in range(len(cluster_labels)):
+		out1.write(' %d \n' %(cluster_labels[i]))
+	out1.close()
+
 	# Initialize the figure to be made...
 	fig, (ax1, ax2) = plt.subplots(1, 2)
 	fig.set_size_inches(18, 7)
@@ -63,17 +80,23 @@ for n_clusters in range_n_clusters:
 	ax1.set_title("The silhouette plot for the various clusters.")
 	ax1.set_xlabel("The silhouette coefficient values")
 	ax1.set_ylabel("Cluster label")
-	ax1.set_xlim([-0.2,1])
-	ax1.set_ylim([0, len(data) + (n_clusters + 1) * 10])			# The (n_clusters+1)*10 is for inserting blank space between silhouette plots of individual clusters, to demarcate them clearly.
+	ax1.set_xlim([-0.2,1.0])
+	ax1.set_ylim([0, nSteps + (n_clusters + 1) * 10])			# The (n_clusters+1)*10 is for inserting blank space between silhouette plots of individual clusters, to demarcate them clearly.
 
 	# 2nd Plot showing the actual clusters formed
 	colors = cm.spectral(cluster_labels.astype(float) / n_clusters)
-	ax2.scatter(data[:, 0], data[:, 1], marker='.', s=30, lw=0, alpha=0.7,c=colors)
+	ax2.scatter(data1[:], data2[:], marker='.', s=30, lw=0, alpha=0.7,c=colors)
 	
-	centers = clusterer.cluster_centers_					# Labeling the clusters
-	ax2.scatter(centers[:, 0], centers[:, 1],marker='o', c="white", alpha=1, s=200) 	# Draw white circles at cluster centers
-	for i, c in enumerate(centers):						# Add label to the circles
-		ax2.scatter(c[0], c[1], marker='$%d$' %(i), alpha=1, s=50)
+#	centers = clusterer.cluster_centers_					# Labeling the clusters
+#	for j in range(len(centers)):
+#		out.write('Center %02d: \n')
+#		for k in range(len(centers[0])):
+#			out.write(' %f   ' %(centers[j][k]))
+#		out.write('\n')
+
+#	ax2.scatter(centers[:, 0], centers[:, 1],marker='o', c="white", alpha=1, s=200) 	# Draw white circles at cluster centers
+#	for i, c in enumerate(centers):						# Add label to the circles
+#		ax2.scatter(c[0], c[1], marker='$%d$' %(i), alpha=1, s=50)
 	
 	ax2.set_title("The visualization of the clustered data.")
 	ax2.set_xlabel("Feature space for the 1st feature")
@@ -82,4 +105,6 @@ for n_clusters in range_n_clusters:
 	plt.suptitle("Silhouette analysis for KMeans clustering on sample data with n_clusters = %d" %(n_clusters),fontsize=14, fontweight='bold')
 	plt.savefig('%02d_clustering.png' %(n_clusters))
 	plt.close()
+
+out.close()
 
