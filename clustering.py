@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import sys
+import sklearn
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples, silhouette_score
 
@@ -28,6 +29,21 @@ def ffprint(string):
 	print '%s' %(string)
 	flush()
 
+def summary():
+	sum_file = open('%s.rmsd.summary' %(system),'w')
+	sum_file.write('Using Scikit-learn version: %s\n' %(sklearn.__version__))
+	sum_file.write('To recreate this analysis, run this line:\n')
+	for i in range(len(sys.argv)):
+		sum_file.write('%s ' %(sys.argv[i]))
+	sum_file.write('\n\n')
+	sum_file.write('Testing clustering for a range of clusters. Output written to:\n')
+	for i in range(len(range_n_clusters)):
+		sum_file.write('	%2d, %02d.Cluster_labels.dat\n' %(range_n_clusters[i],range_n_clusters[i]))
+	sum_file.write('Silhouette data written to:\n')
+	sum_file.write('	sil_clusters.dat\n')
+	sum_file.write('\n')
+	sum_file.close()
+
 # ----------------------------------------
 # MAIN PROGRAM:
 
@@ -35,14 +51,15 @@ data0 = np.loadtxt(datafile0)
 data1 = np.loadtxt(datafile1)
 data2 = np.loadtxt(datafile2)
 
-nSteps = int(data0[-1][1]+1)
-sq_matrix = zeros((nSteps,nSteps),dtype=np.float64)
-
-for j in range(len(data0)):
-	sq_matrix[int(data0[j][0]),int(data0[j][1])] = float(data0[j][2])
-	sq_matrix[int(data0[j][1]),int(data0[j][0])] = float(data0[j][2])
-
-centered_matrix = sq_matrix - np.mean(sq_matrix,axis=0)
+#nSteps = int(data0[-1][1]+1)
+#sq_matrix = zeros((nSteps,nSteps),dtype=np.float64)
+#
+#for j in range(len(data0)):
+#	sq_matrix[int(data0[j][0]),int(data0[j][1])] = float(data0[j][2])
+#	sq_matrix[int(data0[j][1]),int(data0[j][0])] = float(data0[j][2])
+#
+#centered_matrix = sq_matrix - np.mean(sq_matrix,axis=0)
+centered_matrix = data0 - np.mean(data0,axis=0)
 
 out = open('sil_clusters.dat','w')
 for n_clusters in range_n_clusters:
@@ -108,3 +125,4 @@ for n_clusters in range_n_clusters:
 
 out.close()
 
+summary()
