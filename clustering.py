@@ -51,14 +51,6 @@ data0 = np.loadtxt(datafile0)
 data1 = np.loadtxt(datafile1)
 data2 = np.loadtxt(datafile2)
 
-#nSteps = int(data0[-1][1]+1)
-#sq_matrix = zeros((nSteps,nSteps),dtype=np.float64)
-#
-#for j in range(len(data0)):
-#	sq_matrix[int(data0[j][0]),int(data0[j][1])] = float(data0[j][2])
-#	sq_matrix[int(data0[j][1]),int(data0[j][0])] = float(data0[j][2])
-#
-#centered_matrix = sq_matrix - np.mean(sq_matrix,axis=0)
 centered_matrix = data0 - np.mean(data0,axis=0)
 
 out = open('sil_clusters.dat','w')
@@ -103,17 +95,6 @@ for n_clusters in range_n_clusters:
 	# 2nd Plot showing the actual clusters formed
 	colors = cm.spectral(cluster_labels.astype(float) / n_clusters)
 	ax2.scatter(data1[:], data2[:], marker='.', s=30, lw=0, alpha=0.7,c=colors)
-	
-#	centers = clusterer.cluster_centers_					# Labeling the clusters
-#	for j in range(len(centers)):
-#		out.write('Center %02d: \n')
-#		for k in range(len(centers[0])):
-#			out.write(' %f   ' %(centers[j][k]))
-#		out.write('\n')
-
-#	ax2.scatter(centers[:, 0], centers[:, 1],marker='o', c="white", alpha=1, s=200) 	# Draw white circles at cluster centers
-#	for i, c in enumerate(centers):						# Add label to the circles
-#		ax2.scatter(c[0], c[1], marker='$%d$' %(i), alpha=1, s=50)
 	
 	ax2.set_title("The visualization of the clustered data.")
 	ax2.set_xlabel("Feature space for the 1st feature")
